@@ -506,7 +506,7 @@ const app = createApp({
       let url;
       if (params.fileid && params.siteUrl && params.datasetid && params.datasetversion && params.locale) {
         root = 'https://cdif-4-xas.dev.codata.org';
-        siteUrl = 'http://dataverse:8080';
+        //siteUrl = 'http://dataverse:8080';
         url = root + '/cdi?fileid=' + encodeURIComponent(params.fileid)
           + '&siteUrl=' + encodeURIComponent(siteUrl)
           + '&datasetid=' + encodeURIComponent(params.datasetid)
