@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="6405.22" height="6401.22" viewBox="0 0 1694.71 1693.66">
+  <defs>
+    <clipPath id="a" clipPathUnits="userSpaceOnUse">
+      <path d="M0 0h21000v29700H0z"/>
+    </clipPath>
+  </defs>
+  <g style="fill-rule:evenodd;stroke-width:28.22200012;stroke-linejoin:round">
+    <g class="SlideGroup">
+      <g class="Slide" clip-path="url(#a)" transform="matrix(.26458 0 0 .26458 -2023.24 -3387.7)">
+        <g class="Page">
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M10825 14723h2112v2544h-2112z" class="BoundingBox" style="fill:none;stroke:none" transform="translate(36 -1)"/>
+            <path d="M10826 16630v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#ffdbb6;stroke:none" transform="translate(36 -1)"/>
+            <path d="M10826 16630v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#ffdbb6" transform="translate(36 -1)"/>
+          </g>
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M8717 14723h2112v2544H8717z" class="BoundingBox" style="fill:none;stroke:none" transform="translate(10)"/>
+            <path d="M8718 16630v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#ff972f;stroke:none" transform="translate(10)"/>
+            <path d="M8718 16630v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#ff972f" transform="translate(10)"/>
+          </g>
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M9771 16637h2112v2544H9771z" class="BoundingBox" style="fill:none;stroke:none" transform="translate(22 12)"/>
+            <path d="M9772 18544v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#ffbf00;stroke:none" transform="translate(22 12)"/>
+            <path d="M9772 18544v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#ffbf00" transform="translate(22 12)"/>
+          </g>
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M7660 12817h2112v2544H7660z" class="BoundingBox" style="fill:none;stroke:none"/>
+            <path d="M7661 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#ffbf00;stroke:none"/>
+            <path d="M7661 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#ffbf00"/>
+          </g>
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M9768 12817h2112v2544H9768z" class="BoundingBox" style="fill:none;stroke:none" transform="translate(28)"/>
+            <path d="M9769 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#be480a;stroke:none" transform="translate(28)"/>
+            <path d="M9769 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#be480a" transform="translate(28)"/>
+          </g>
+          <g class="com.sun.star.drawing.CustomShape">
+            <path d="M11876 12817h2112v2544h-2112z" class="BoundingBox" style="fill:none;stroke:none" transform="translate(52)"/>
+            <path d="M11877 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:#ff972f;stroke:none" transform="translate(52)"/>
+            <path d="M11877 14724v-1270l1054-636 1055 636v1270l-1055 635z" style="fill:none;stroke:#ff972f" transform="translate(52)"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

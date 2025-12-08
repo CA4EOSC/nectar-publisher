@@ -9,7 +9,7 @@ services:
     ports:
       - "8084:80"
     volumes:
-      - ./online/nectar-publisher-main:/usr/local/apache2/htdocs
+      - ./offline/nectar-publisher-main:/usr/local/apache2/htdocs
     environment:
       NODE_ENV: development
 
