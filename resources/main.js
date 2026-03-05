@@ -57,8 +57,9 @@ const app = createApp({
             col.position = index;
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
-            col.description = item.value_description || "";
-            col.unit = item.unit_scale || "";
+            col.value = item.value || "";
+            col.units = item.unit_scale || "";
+            col.role = item.value ? 'Measure' : 'Attribute';
 
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
@@ -459,6 +460,7 @@ const app = createApp({
               if (definition) {
                 col.variable_definition = definition;
                 col.description = definition;
+                //col.value = definition;
               }
 
               // Extract units - handle various formats
@@ -519,6 +521,7 @@ const app = createApp({
               if (defMeta && defMeta.definition) {
                 col.variable_definition = defMeta.definition;
                 if (!col.description) col.description = defMeta.definition;
+                //if (!col.value) col.value = defMeta.definition;
               }
             }
 
@@ -584,8 +587,9 @@ const app = createApp({
             col.position = index;
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
-            col.description = item.value_description || "";
-            col.unit = item.unit_scale || "";
+            col.value = item.value || "";
+            col.units = item.unit_scale || "";
+            col.role = item.value ? 'Measure' : 'Attribute';
 
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];

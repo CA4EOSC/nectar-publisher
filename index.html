@@ -238,33 +238,16 @@
 							</div>
 							<div class="col-md-1">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Name</label>
-								<input v-model="column.name" type="text" class="form-control" disabled readonly>
+								<input v-model="column.name" type="text" class="form-control" disabled readonly
+									style="font-size: 0.8rem;">
 							</div>
-							<div class="col-md-2 label">
+							<div class="col-md-3 label">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Label</label>
 								<input v-model="column.label" type="text" class="form-control">
 							</div>
-							<div class="col-md-2 label">
+							<div class="col-md-5 label">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Definition</label>
 								<input v-model="column.variable_definition" type="text" class="form-control">
-							</div>
-							<div class="col-md-2 label">
-								<label class="form-label" :class="{notFirst: (index > 0)}">Unit</label>
-								<input v-model="column.unit" list="unit-list" type="text" class="form-control">
-							</div>
-							<div class="col-md-2">
-								<label class="form-label" :class="{notFirst: (index > 0)}">Type</label>
-								<div class="input-group">
-									<select v-model="column.hasIntendedDataType" class="form-select">
-										<option v-for="colType in cv.representationType" :value="colType">{{
-											colType.label }}</option>
-									</select>
-									<Transition>
-										<button v-if="column.hasIntendedDataType.id == 'Code'"
-											class="btn btn-outline-secondary" type="button"
-											title="document codelist">🧾</button>
-									</Transition>
-								</div>
 							</div>
 							<div class="col-md-1">
 								<label class="form-label row codeCheckLabel"
@@ -295,14 +278,26 @@
 								<div class="mb-12">
 									<label :for="'description-' + column.position"
 										class="form-label">Description</label>
-									<textarea v-model="column.description" class="form-control"
+									<textarea v-model="column.value"
+										@input="column.value ? column.role='Measure' : null" class="form-control"
 										:id="'description-' + column.position" rows="4"></textarea>
 								</div>
-								<div v-if="column.hasIntendedDataType.type == 'numeric' || column.hasIntendedDataType.type == 'decimal'"
-									class="col-md-12">
-									<label class="form-label">Unit</label>
-									<input v-model="column.unit" list="unit-list" type="text" class="form-control">
-									<!-- not a good way to do it, just a temp list... -->
+								<div class="col-md-3">
+									<label class="form-label">Type</label>
+									<div class="input-group">
+										<select v-model="column.hasIntendedDataType" class="form-select">
+											<option v-for="colType in cv.representationType" :value="colType">{{
+												colType.label }}</option>
+										</select>
+										<Transition v-if="column.hasIntendedDataType.id == 'Code'">
+											<button class="btn btn-outline-secondary" type="button"
+												title="document codelist">🧾</button>
+										</Transition>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<label class="form-label">Units</label>
+									<input v-model="column.units" list="unit-list" type="text" class="form-control">
 									<datalist id="unit-list">
 										<option>candela</option>
 										<option>meter</option>
@@ -316,6 +311,19 @@
 										<option>pascal</option>
 									</datalist>
 								</div>
+								<div class="col-md-2">
+									<label class="form-label">Role</label>
+									<select v-model="column.role" name="role" id="role" class="form-select">
+										<option value="Identifier">Identifier</option>
+										<option value="Measure">Measure</option>
+										<option value="Attribute">Attribute</option>
+									</select>
+								</div>
+								<div class="col-md-4">
+									<label class="form-label">Value</label>
+									<input v-model="column.value" @input="column.value ? column.role='Measure' : null"
+										type="text" class="form-control">
+								</div>
 								<div v-if="column.hasIntendedDataType.type == 'decimal'" class="col-md-6">
 									<label class="form-label">Decimal positions</label>
 									<input v-model.number="column.decimalPositions" type="number" inputmode="numeric"
@@ -326,14 +334,6 @@
 									<label class="form-label">Accuracy</label>
 									<input v-model.number="column.accuracy" type="number" inputmode="numeric"
 										pattern="[0-9]" step="1" min="0" class="form-control">
-								</div>
-								<div class="col-md-6">
-									<label class="form-label">Role</label>
-									<select v-model="column.role" name="role" id="role" class="form-select">
-										<option name="Identifier">Identifier</option>
-										<option name="Measure">Measure</option>
-										<option name="Attribute">Attribute</option>
-									</select>
 								</div>
 							</div>
 						</Transition>

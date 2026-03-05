@@ -34,7 +34,7 @@ External agents should produce an array of objects following this schema:
 {
   "variable_type": "Quantitative | Qualitative | Temporal",
   "variable_name": "Unique identifier or name of the variable",
-  "value_description": "The specific data value or sample observed",
+  "value": "Description: The specific data value or sample observed",
   "unit_scale": "Measurement unit (e.g., Count, People/Year) or standard (ISO 8601)",
   "variable_definition": "Semantic description or impact analysis"
 }
