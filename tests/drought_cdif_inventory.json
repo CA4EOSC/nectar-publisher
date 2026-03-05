@@ -1,0 +1,107 @@
+[
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "Global Affected Population",
+    "value_description": "55,000,000",
+    "unit_scale": "People/Year",
+    "context": "Estimated annual impact of droughts."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "Water Scarcity Impact",
+    "value_description": "40",
+    "unit_scale": "Percentage (%)",
+    "context": "Portion of the global population facing water scarcity."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "Projected Displacement",
+    "value_description": "700,000,000",
+    "unit_scale": "People",
+    "context": "Estimated population at risk by the year 2030."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "SPI Record Period",
+    "value_description": "30",
+    "unit_scale": "Years",
+    "context": "Minimum historical data required for accurate SPI calculation."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "Min Drought Duration",
+    "value_description": "1",
+    "unit_scale": "Month",
+    "context": "Standard temporal threshold for drought definition."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "IDMP Partners",
+    "value_description": "35",
+    "unit_scale": "Count",
+    "context": "Number of organizations involved in the management program."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "Policy Guidelines",
+    "value_description": "10",
+    "unit_scale": "Steps",
+    "context": "The structured process for creating national drought plans."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "WMO Meteorology Indices",
+    "value_description": "23",
+    "unit_scale": "Count",
+    "context": "Number of meteorological indices listed in the WMO compendium."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "WMO Soil Moisture Indices",
+    "value_description": "4",
+    "unit_scale": "Count",
+    "context": "Number of soil moisture indices in the WMO compendium."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "WMO Hydrology Indices",
+    "value_description": "8",
+    "unit_scale": "Count",
+    "context": "Number of hydrology indices in the WMO compendium."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "WMO Remote Sensing Indices",
+    "value_description": "10",
+    "unit_scale": "Count",
+    "context": "Number of remote sensing indices in the WMO compendium."
+  },
+  {
+    "variable_type": "Quantitative",
+    "variable_name": "WMO Modelled Indices",
+    "variable_description": "5",
+    "unit_scale": "Count",
+    "context": "Number of composite/modelled indices in the WMO compendium."
+  },
+  {
+    "variable_type": "Qualitative",
+    "variable_name": "Drought Categories",
+    "value_description": "4",
+    "unit_scale": "Categorical",
+    "context": "Meteorological, Hydrological, Agricultural, Socioeconomic."
+  },
+  {
+    "variable_type": "Temporal",
+    "variable_name": "UNCCD Establishment",
+    "value_description": "1994",
+    "unit_scale": "Year (AD)",
+    "context": "Founding year of the Convention to Combat Desertification."
+  },
+  {
+    "variable_type": "Temporal",
+    "variable_name": "Watercourses Force Date",
+    "value_description": "2014-08-17",
+    "unit_scale": "ISO 8601",
+    "context": "The date the UN Watercourses Convention entered into force."
+  }
+]

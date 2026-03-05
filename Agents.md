@@ -23,6 +23,26 @@ Agents are not meant to replace the researcher. Nectar Publisher's UI allows use
 - Override or refine any metadata before final export.
 - Use AI results as a base for manual "coding" of variables (e.g., mapping numeric values to labels).
 
+## Interoperability Standard
+
+To ensure seamless integration with external AI Agents and data inventories, Nectar Publisher supports a standardized JSON structure for **CDIF Variable Inventories**. This structure allows external services to prepare metadata that Nectar Publisher can ingest and map directly to its internal DDI models.
+
+### Standard JSON Schema
+External agents should produce an array of objects following this schema:
+
+```json
+{
+  "variable_type": "Quantitative | Qualitative | Temporal",
+  "variable_name": "Unique identifier or name of the variable",
+  "value_description": "The specific data value or sample observed",
+  "unit_scale": "Measurement unit (e.g., Count, People/Year) or standard (ISO 8601)",
+  "context": "Semantic description or impact analysis"
+}
+```
+
+Example usage can be found in [tests/drought_cdif_inventory.json](file:///Users/vyacheslavtykhonov/projects/nectar-publisher/tests/drought_cdif_inventory.json).
+
+
 ## Implementation Details
 
 The core "Agentic" logic is primarily located in:
