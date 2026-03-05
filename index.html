@@ -236,7 +236,7 @@
 							<div class="shrink">
 								<span>{{column.position}}</span>
 							</div>
-							<div class="col-md-2">
+							<div class="col-md-1">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Name</label>
 								<input v-model="column.name" type="text" class="form-control" disabled readonly>
 							</div>
@@ -247,6 +247,10 @@
 							<div class="col-md-2 label">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Definition</label>
 								<input v-model="column.variable_definition" type="text" class="form-control">
+							</div>
+							<div class="col-md-2 label">
+								<label class="form-label" :class="{notFirst: (index > 0)}">Unit</label>
+								<input v-model="column.unit" list="unit-list" type="text" class="form-control">
 							</div>
 							<div class="col-md-2">
 								<label class="form-label" :class="{notFirst: (index > 0)}">Type</label>

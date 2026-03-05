@@ -58,6 +58,7 @@ const app = createApp({
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
             col.description = item.value_description || "";
+            col.unit = item.unit_scale || "";
 
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
@@ -67,9 +68,6 @@ const app = createApp({
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "String") || RepresentationTypes[0];
             }
 
-            if (item.unit_scale) {
-              col.description += ` [Unit/Scale: ${item.unit_scale}]`;
-            }
             return col;
           });
           this.input.dataset.columns = newCols;
@@ -587,15 +585,14 @@ const app = createApp({
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
             col.description = item.value_description || "";
+            col.unit = item.unit_scale || "";
+
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
             } else if (item.variable_type === "Temporal") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "DateTime") || RepresentationTypes[0];
             } else {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "String") || RepresentationTypes[0];
-            }
-            if (item.unit_scale) {
-              col.description += ` [Unit/Scale: ${item.unit_scale}]`;
             }
             return col;
           });
