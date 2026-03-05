@@ -58,6 +58,7 @@ const app = createApp({
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
             col.value = item.value || "";
+            col.description = item.description || "";
             col.units = item.unit_scale || "";
             col.role = item.value ? 'Measure' : 'Attribute';
 
@@ -588,6 +589,7 @@ const app = createApp({
             col.label = item.variable_name;
             col.variable_definition = item.variable_definition || "";
             col.value = item.value || "";
+            col.description = item.description || "";
             col.units = item.unit_scale || "";
             col.role = item.value ? 'Measure' : 'Attribute';
 

@@ -278,8 +278,7 @@
 								<div class="mb-12">
 									<label :for="'description-' + column.position"
 										class="form-label">Description</label>
-									<textarea v-model="column.value"
-										@input="column.value ? column.role='Measure' : null" class="form-control"
+									<textarea v-model="column.description" class="form-control"
 										:id="'description-' + column.position" rows="4"></textarea>
 								</div>
 								<div class="col-md-3">
