@@ -237,21 +237,22 @@
 								<span>{{column.position}}</span>
 							</div>
 							<div class="col-md-1">
-								<label class="form-label" :class="{notFirst: (index > 0)}">Name</label>
+								<label class="form-label" :class="{notFirst: (index > 0)}">{{ uiMapping.name }}</label>
 								<input v-model="column.name" type="text" class="form-control" disabled readonly
 									style="font-size: 0.8rem;">
 							</div>
 							<div class="col-md-3 label">
-								<label class="form-label" :class="{notFirst: (index > 0)}">Label</label>
+								<label class="form-label" :class="{notFirst: (index > 0)}">{{ uiMapping.label }}</label>
 								<input v-model="column.label" type="text" class="form-control">
 							</div>
 							<div class="col-md-5 label">
-								<label class="form-label" :class="{notFirst: (index > 0)}">Definition</label>
+								<label class="form-label" :class="{notFirst: (index > 0)}">{{
+									uiMapping.variable_definition }}</label>
 								<input v-model="column.variable_definition" type="text" class="form-control">
 							</div>
 							<div class="col-md-1">
-								<label class="form-label row codeCheckLabel"
-									:class="{notFirst: (index > 0)}">Coded</label>
+								<label class="form-label row codeCheckLabel" :class="{notFirst: (index > 0)}">{{
+									uiMapping.coded }}</label>
 								<div class="btn-group" role="group" aria-label="coded variable">
 									<input v-model="column.coded" @change="column.createCodeList()" type="checkbox"
 										class="btn-check" :id="'coded-'+column.id" autocomplete="off">
@@ -276,13 +277,13 @@
 						<Transition>
 							<div v-if="column.showDetails" class="row details mb-2">
 								<div class="mb-12">
-									<label :for="'description-' + column.position"
-										class="form-label">Description</label>
+									<label :for="'description-' + column.position" class="form-label">{{
+										uiMapping.description }}</label>
 									<textarea v-model="column.description" class="form-control"
 										:id="'description-' + column.position" rows="4"></textarea>
 								</div>
 								<div class="col-md-3">
-									<label class="form-label">Type</label>
+									<label class="form-label">{{ uiMapping.hasIntendedDataType }}</label>
 									<div class="input-group">
 										<select v-model="column.hasIntendedDataType" class="form-select">
 											<option v-for="colType in cv.representationType" :value="colType">{{
@@ -295,7 +296,7 @@
 									</div>
 								</div>
 								<div class="col-md-3">
-									<label class="form-label">Units</label>
+									<label class="form-label">{{ uiMapping.units }}</label>
 									<input v-model="column.units" list="unit-list" type="text" class="form-control">
 									<datalist id="unit-list">
 										<option>candela</option>
@@ -311,7 +312,7 @@
 									</datalist>
 								</div>
 								<div class="col-md-2">
-									<label class="form-label">Role</label>
+									<label class="form-label">{{ uiMapping.role }}</label>
 									<select v-model="column.role" name="role" id="role" class="form-select">
 										<option value="Identifier">Identifier</option>
 										<option value="Measure">Measure</option>
@@ -319,18 +320,18 @@
 									</select>
 								</div>
 								<div class="col-md-4">
-									<label class="form-label">Value</label>
+									<label class="form-label">{{ uiMapping.value }}</label>
 									<input v-model="column.value" @input="column.value ? column.role='Measure' : null"
 										type="text" class="form-control">
 								</div>
 								<div v-if="column.hasIntendedDataType.type == 'decimal'" class="col-md-6">
-									<label class="form-label">Decimal positions</label>
+									<label class="form-label">{{ uiMapping.decimalPositions }}</label>
 									<input v-model.number="column.decimalPositions" type="number" inputmode="numeric"
 										pattern="[0-9]" step="1" min="0" class="form-control">
 								</div>
 								<div v-if="column.hasIntendedDataType.type == 'numeric' || column.hasIntendedDataType.type == 'decimal'"
 									class="col-md-6">
-									<label class="form-label">Accuracy</label>
+									<label class="form-label">{{ uiMapping.accuracy }}</label>
 									<input v-model.number="column.accuracy" type="number" inputmode="numeric"
 										pattern="[0-9]" step="1" min="0" class="form-control">
 								</div>

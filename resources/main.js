@@ -822,12 +822,42 @@ const app = createApp({
     }
     // Default behavior:
     this.loadJsonLdFromUrl();
+
+    // Fetch UI Mapping
+    fetch('mappings/ui_mapping.jsonld')
+      .then(resp => {
+        if (!resp.ok) throw new Error('Failed to load UI mapping');
+        return resp.json();
+      })
+      .then(mappingData => {
+        if (mappingData['@graph']) {
+          mappingData['@graph'].forEach(item => {
+            if (item.name && item.mapsToUI) {
+              this.uiMapping[item.name] = item.mapsToUI;
+            }
+          });
+        }
+      })
+      .catch(e => console.log('UI Mapping load skipped/failed:', e.message));
   },
   setup() {
     const codeListVariableIndex = ref(null)
     const input = reactive({
       file: null,
       dataset: new Dataset()
+    })
+    const uiMapping = reactive({
+      name: "Name",
+      label: "Label",
+      variable_definition: "Definition",
+      units: "Units",
+      value: "Value",
+      description: "Description",
+      role: "Role",
+      hasIntendedDataType: "Type",
+      coded: "Coded",
+      decimalPositions: "Decimal positions",
+      accuracy: "Accuracy"
     })
     const cv = {
       representationType: RepresentationTypes
@@ -862,7 +892,7 @@ const app = createApp({
     // Add this to expose GET params
     const endpointParams = getQueryParams();
     return {
-      input, cv, appMetadata, output, codeListVariableIndex, endpointParams
+      input, cv, appMetadata, output, codeListVariableIndex, endpointParams, uiMapping
     }
   }
 }).mount("#app")
