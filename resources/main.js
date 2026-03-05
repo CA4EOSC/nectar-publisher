@@ -56,8 +56,8 @@ const app = createApp({
             const col = new DatasetColumn(item.variable_name || `Var_${index}`);
             col.position = index;
             col.label = item.variable_name;
-            col.description = item.context || "";
-            col.definition = item.value_description || "";
+            col.variable_definition = item.variable_definition || "";
+            col.description = item.value_description || "";
 
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
@@ -459,7 +459,7 @@ const app = createApp({
               }
 
               if (definition) {
-                col.definition = definition;
+                col.variable_definition = definition;
                 col.description = definition;
               }
 
@@ -516,10 +516,10 @@ const app = createApp({
             }
 
             // Fallback to variableMetadata if no ollama_remote data found
-            if (!col.definition && v.variableMetadata && Array.isArray(v.variableMetadata) && v.variableMetadata.length) {
+            if (!col.variable_definition && v.variableMetadata && Array.isArray(v.variableMetadata) && v.variableMetadata.length) {
               const defMeta = v.variableMetadata.find(m => m.definition || m.label === 'definition');
               if (defMeta && defMeta.definition) {
-                col.definition = defMeta.definition;
+                col.variable_definition = defMeta.definition;
                 if (!col.description) col.description = defMeta.definition;
               }
             }
@@ -585,7 +585,7 @@ const app = createApp({
             const col = new DatasetColumn(item.variable_name || `Var_${index}`);
             col.position = index;
             col.label = item.variable_name;
-            col.definition = item.variable_definition || "";
+            col.variable_definition = item.variable_definition || "";
             col.description = item.value_description || "";
             if (item.variable_type === "Quantitative") {
               col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
