@@ -42,6 +42,15 @@ External agents should produce an array of objects following this schema:
 
 Example usage can be found in [tests/drought_cdif_inventory.json](file:///Users/vyacheslavtykhonov/projects/nectar-publisher/tests/drought_cdif_inventory.json).
 
+### UI Mapping (JSON-LD)
+To help external AI Agents map source data correctly to the Nectar Publisher frontend, a semantic JSON-LD mapping file has been provided: [`mappings/ui_mapping.jsonld`](file:///Users/vyacheslavtykhonov/projects/nectar-publisher/mappings/ui_mapping.jsonld). 
+
+This file defines the exact relationship between internal JavaScript object properties (e.g. `DatasetColumn.value`) and their corresponding user interface labels (e.g. `"Value"`). Agents should use this mapping when deciding which JSON fields correspond to which visual inputs in Nectar Publisher. Example mappings include:
+- `value` ➔ **Value**
+- `description` ➔ **Description**
+- `units` ➔ **Units**
+- `variable_definition` ➔ **Definition**
+
 
 ## Implementation Details
 
