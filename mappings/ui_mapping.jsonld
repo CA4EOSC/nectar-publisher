@@ -1,0 +1,79 @@
+{
+    "@context": {
+        "schema": "http://schema.org/",
+        "nectar": "https://github.com/CA4EOSC/nectar-publisher/blob/main/resources/modules/models.js#",
+        "ui": "http://example.org/ui/",
+        "UIField": "ui:UIField",
+        "name": "schema:name",
+        "description": "schema:description",
+        "mapsToUI": "ui:mapsTo"
+    },
+    "@graph": [
+        {
+            "@id": "nectar:name",
+            "@type": "UIField",
+            "name": "name",
+            "mapsToUI": "Name"
+        },
+        {
+            "@id": "nectar:label",
+            "@type": "UIField",
+            "name": "label",
+            "mapsToUI": "Label"
+        },
+        {
+            "@id": "nectar:variable_definition",
+            "@type": "UIField",
+            "name": "variable_definition",
+            "mapsToUI": "Definition"
+        },
+        {
+            "@id": "nectar:units",
+            "@type": "UIField",
+            "name": "units",
+            "mapsToUI": "Units"
+        },
+        {
+            "@id": "nectar:value",
+            "@type": "UIField",
+            "name": "value",
+            "mapsToUI": "Value"
+        },
+        {
+            "@id": "nectar:description",
+            "@type": "UIField",
+            "name": "description",
+            "mapsToUI": "Description"
+        },
+        {
+            "@id": "nectar:role",
+            "@type": "UIField",
+            "name": "role",
+            "mapsToUI": "Role"
+        },
+        {
+            "@id": "nectar:hasIntendedDataType",
+            "@type": "UIField",
+            "name": "hasIntendedDataType",
+            "mapsToUI": "Type"
+        },
+        {
+            "@id": "nectar:coded",
+            "@type": "UIField",
+            "name": "coded",
+            "mapsToUI": "Coded"
+        },
+        {
+            "@id": "nectar:decimalPositions",
+            "@type": "UIField",
+            "name": "decimalPositions",
+            "mapsToUI": "Decimal positions"
+        },
+        {
+            "@id": "nectar:accuracy",
+            "@type": "UIField",
+            "name": "accuracy",
+            "mapsToUI": "Accuracy"
+        }
+    ]
+}
