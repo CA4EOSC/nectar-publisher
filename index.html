@@ -107,9 +107,10 @@
 						</li>
 
 						<li class="nav-item">
-							<button data-bs-target="#importViaServiceModal" data-bs-toggle="modal" type="button" class="btn btn-light"
-								title="import data via external service">🌐 import data via service</button>
+							<button @click="this.$refs.inputCdifMetadata.click()" type="button" class="btn btn-light"
+								title="import metadata from CDIF JSON">🧩 import CDIF inventory</button>
 						</li>
+						<li class="nav-item">
 						<li class="nav-item">
 							<button type="button" class="btn btn-light" data-bs-toggle="modal"
 								data-bs-target="#aboutModal" title="about this app">ℹ️ about</button>
@@ -122,6 +123,7 @@
 		<input ref="inputFile" id="inputFile" @change="importDataFromFile" type="file" accept=".csv,.tsv,.xlsx,.xls,.ods,text/csv" style="display: none;">
 		<input ref="inputFileToRemote" id="inputFileToRemove" @change="importDataFromService" type="file" accept=".sav" style="display: none;">
 		<input ref="inputMetadata" id="inputMetadata" @change="importMetadata" type="file" accept=".xml" style="display: none;">
+		<input ref="inputCdifMetadata" id="inputCdifMetadata" @change="importCdifMetadata" type="file" accept=".json" style="display: none;">
 
 		<div class="row card border border-danger text-danger" v-if="input.dataset.errors.length > 0">
 			<div class="card-body">
@@ -563,6 +565,7 @@
 	<script src="resources/modules/formatters/ddi-40-l-json.js"></script>
 	<script src="resources/modules/opencpu.js"></script>
 	<script src="resources/modules/importers/ddi-c-xml-importer.js"></script>
+	<script src="resources/modules/importers/cdif-json-importer.js"></script>
 	<script src="resources/main.js"></script>
 </body>
 

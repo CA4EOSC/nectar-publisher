@@ -1,7 +1,7 @@
 const { createApp, ref, reactive, computed } = Vue
 
-var ColumnRow =  {
-  props:['column'],
+var ColumnRow = {
+  props: ['column'],
   setup() {
     const count = ref(0)
     return { count }
@@ -24,30 +24,66 @@ function getQueryParams() {
 }
 
 const app = createApp({
-  components: {ColumnRow: ColumnRow},
+  components: { ColumnRow: ColumnRow },
   methods: {
     async importDataFromFile(event) {
       this.input.file = event.target.files[0]
-      document.title = `${this.input.file.name} - ${ this.appMetadata.name}`
+      document.title = `${this.input.file.name} - ${this.appMetadata.name}`
       await Parser.parseFile(this.input.file, (d) => this.input.dataset = d)
     },
     async importDataFromService(event) {
       this.input.file = event.target.files[0]
-      document.title = `${this.input.file.name} - ${ this.appMetadata.name}`
+      document.title = `${this.input.file.name} - ${this.appMetadata.name}`
       // TODO: call service and get the metadata
       await OpenCPU.parseFile(this.input.file, (d) => this.input.dataset = d)
     },
     async importMetadata(event) {
-      if (this.input.file === null){
+      if (this.input.file === null) {
         console.log('Data file must already exist!');
       } else {
         //this.meta.file = event.target.files[0]
         this.input.dataset.columns = importDdiCMetadata(event.target.files[0], this.input.dataset.columns)
       }
     },
+    async importCdifMetadata(event) {
+      // CDIF inventory import doesn't strictly require a data file yet, but we'll follow the same pattern
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const inventory = JSON.parse(e.target.result);
+          // Helper to map and update
+          const newCols = inventory.map((item, index) => {
+            const col = new DatasetColumn(item.variable_name || `Var_${index}`);
+            col.position = index;
+            col.label = item.variable_name;
+            col.description = item.context || "";
+            col.definition = item.value_description || "";
+
+            if (item.variable_type === "Quantitative") {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
+            } else if (item.variable_type === "Temporal") {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "DateTime") || RepresentationTypes[0];
+            } else {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "String") || RepresentationTypes[0];
+            }
+
+            if (item.unit_scale) {
+              col.description += ` [Unit/Scale: ${item.unit_scale}]`;
+            }
+            return col;
+          });
+          this.input.dataset.columns = newCols;
+          this.input.dataset.fileName = event.target.files[0].name; // Set a filename if none exists
+        } catch (err) {
+          console.error("Failed to parse CDIF Inventory JSON:", err);
+          alert("Error importing CDIF Inventory: " + err.message);
+        }
+      };
+      reader.readAsText(event.target.files[0]);
+    },
     extractColumnsFromJsonLd(jsonLdData) {
       const columns = []
-      
+
       // Helper function to extract value from JSON-LD property
       const extractValue = (property) => {
         if (!property) return null
@@ -63,7 +99,7 @@ const app = createApp({
         }
         return property || null
       }
-      
+
       // Helper function to get property from node
       const getProperty = (node, propName) => {
         if (!node || typeof node !== 'object') return null
@@ -85,7 +121,7 @@ const app = createApp({
         }
         return null
       }
-      
+
       // Helper function to find node by @id
       const findNodeById = (nodeId) => {
         if (!nodeId) return null
@@ -101,48 +137,48 @@ const app = createApp({
         }
         return null
       }
-      
+
       // Collect variables from multiple sources
       const variableMap = new Map() // Map to track variables by name to avoid duplicates
-      
+
       // Source 1: Extract from Column label node
       const columnLabelNode = findNodeById('https://ddi-cdi.org/label/Column')
       if (columnLabelNode) {
-        const columnLabelKeys = Object.keys(columnLabelNode).filter(key => 
-          key.startsWith('https://ddi-cdi.org/label/') && 
+        const columnLabelKeys = Object.keys(columnLabelNode).filter(key =>
+          key.startsWith('https://ddi-cdi.org/label/') &&
           key !== 'https://ddi-cdi.org/label/Column'
         )
-        
+
         // Sort column keys to maintain order
         columnLabelKeys.sort((a, b) => {
           const numA = parseInt(a.split('/').pop()) || 0
           const numB = parseInt(b.split('/').pop()) || 0
           return numA - numB
         })
-        
+
         console.log('Found column label keys:', columnLabelKeys)
-        
+
         // Process each column from label system
         columnLabelKeys.forEach((labelKey, index) => {
           const columnRefs = columnLabelNode[labelKey]
           if (!columnRefs) return
-          
+
           const refArray = Array.isArray(columnRefs) ? columnRefs : [columnRefs]
           const firstRef = refArray[0]
           const refId = firstRef?.['@id'] || (typeof firstRef === 'string' ? firstRef : null)
-          
+
           if (!refId) return
-          
+
           const defNode = findNodeById(refId)
           if (!defNode) return
-          
+
           const definition = getProperty(defNode, 'definition')
           const defValue = extractValue(definition)
-          
+
           // Parse the definition to extract name and label
           let columnName = defValue || `Column${index + 1}`
           let columnLabel = columnName
-          
+
           if (defValue && defValue.includes(' ')) {
             const parts = defValue.split(' ')
             columnName = parts[0]
@@ -151,7 +187,7 @@ const app = createApp({
             columnName = defValue
             columnLabel = defValue
           }
-          
+
           // Store in map with position
           if (columnName && !variableMap.has(columnName)) {
             variableMap.set(columnName, {
@@ -164,26 +200,26 @@ const app = createApp({
           }
         })
       }
-      
+
       // Source 2: Extract from xdiCdifMapping for additional variables
       // Priority list of common data column variables (based on XAS data structure)
-      const priorityVariables = ['energy', 'i0', 'itrans', 'mutrans', 'ifluor', 'mufluor', 'irefer', 'murefer', 
-                                 'normtrans', 'normfluor', 'normrefer', 'k', 'chi', 'chi_mag', 'chi_pha', 
-                                 'chi_re', 'chi_im', 'r', 'angle']
-      
+      const priorityVariables = ['energy', 'i0', 'itrans', 'mutrans', 'ifluor', 'mufluor', 'irefer', 'murefer',
+        'normtrans', 'normfluor', 'normrefer', 'k', 'chi', 'chi_mag', 'chi_pha',
+        'chi_re', 'chi_im', 'r', 'angle']
+
       if (jsonLdData['xdiCdifMapping'] && jsonLdData['xdiCdifMapping']['@graph']) {
         const xdiVariables = []
         jsonLdData['xdiCdifMapping']['@graph'].forEach(item => {
           const xdiDict = item['xdi dictionary']
           if (xdiDict && typeof xdiDict === 'string') {
             // Only include base variable names (not properties like "Beamline.name")
-            if (xdiDict && !xdiDict.includes('.') && 
-                !['Beamline', 'detector', 'facility', 'scan', 'Sample', 'Element', 'Mono', 'Column', 'variables', 'monochormator'].includes(xdiDict)) {
+            if (xdiDict && !xdiDict.includes('.') &&
+              !['Beamline', 'detector', 'facility', 'scan', 'Sample', 'Element', 'Mono', 'Column', 'variables', 'monochormator'].includes(xdiDict)) {
               xdiVariables.push(xdiDict)
             }
           }
         })
-        
+
         // Sort by priority - prioritize known data column variables
         xdiVariables.sort((a, b) => {
           const aPriority = priorityVariables.indexOf(a)
@@ -193,7 +229,7 @@ const app = createApp({
           if (bPriority !== -1) return 1
           return a.localeCompare(b)
         })
-        
+
         // Add variables that aren't already in the map
         let position = variableMap.size
         xdiVariables.forEach(varName => {
@@ -207,15 +243,15 @@ const app = createApp({
             })
           }
         })
-        
+
         console.log('Found variables from xdiCdifMapping:', xdiVariables)
       }
-      
+
       // Convert map to columns array, maintaining order, but KEEP ONLY label-sourced variables, drop others
       const sortedVariables = Array.from(variableMap.entries()).filter(([varName, varInfo]) => varInfo.source === 'label').sort((a, b) => {
         return a[1].position - b[1].position
       })
-      
+
       // Create DatasetColumn objects
       sortedVariables.forEach(([varName, varInfo], index) => {
         const column = new DatasetColumn(varInfo.name)
@@ -224,39 +260,39 @@ const app = createApp({
         column.name = varInfo.name
         column.label = varInfo.label
         column.description = varInfo.description
-        
+
         // Determine data type
         const nameLower = varInfo.name.toLowerCase()
         const labelLower = varInfo.label.toLowerCase()
-        
+
         // Check for numeric indicators
-        if (labelLower.includes('energy') || 
-            labelLower.includes('intensity') || 
-            labelLower.includes('count') ||
-            labelLower.includes('ev') ||
-            nameLower.startsWith('i') && (nameLower.includes('0') || nameLower.includes('trans')) ||
-            nameLower.startsWith('mu') ||
-            nameLower.startsWith('norm') ||
-            nameLower === 'k' ||
-            nameLower === 'r' ||
-            nameLower.startsWith('chi')) {
+        if (labelLower.includes('energy') ||
+          labelLower.includes('intensity') ||
+          labelLower.includes('count') ||
+          labelLower.includes('ev') ||
+          nameLower.startsWith('i') && (nameLower.includes('0') || nameLower.includes('trans')) ||
+          nameLower.startsWith('mu') ||
+          nameLower.startsWith('norm') ||
+          nameLower === 'k' ||
+          nameLower === 'r' ||
+          nameLower.startsWith('chi')) {
           // Likely numeric
-          column.hasIntendedDataType = RepresentationTypes.find(e => e.id === 'Decimal') || 
-                                      RepresentationTypes.find(e => e.id === 'Float') ||
-                                      RepresentationTypes.find(e => e.type === 'decimal') ||
-                                      RepresentationTypes[0]
+          column.hasIntendedDataType = RepresentationTypes.find(e => e.id === 'Decimal') ||
+            RepresentationTypes.find(e => e.id === 'Float') ||
+            RepresentationTypes.find(e => e.type === 'decimal') ||
+            RepresentationTypes[0]
         } else {
           // Default to text/String
           column.hasIntendedDataType = RepresentationTypes.find(e => e.id === 'String') ||
-                                      RepresentationTypes.find(e => e.type === 'string') ||
-                                      RepresentationTypes[0]
+            RepresentationTypes.find(e => e.type === 'string') ||
+            RepresentationTypes[0]
         }
-        
+
         column.coded = false
         columns.push(column)
         console.log(`Extracted column ${index + 1}:`, varInfo.name, varInfo.label, `(${varInfo.source})`)
       })
-      
+
       return columns
     },
     async fetchResourcemapVariables(params) {
@@ -272,7 +308,7 @@ const app = createApp({
         const resp = await fetch(resourcemapUrl);
         if (!resp.ok) throw new Error('Failed to load resourcemap: ' + resp.status);
         const resourcemap = await resp.json();
-        
+
         // Create a map of results by variable name for quick lookup of ollama_remote data
         const resultsMap = new Map();
         if (Array.isArray(resourcemap.results)) {
@@ -283,18 +319,18 @@ const app = createApp({
           });
           console.log(`Built resultsMap with ${resultsMap.size} entries from resourcemap.results`);
         }
-        
+
         // Map to DatasetColumns (adjust if DatasetColumn structure changes)
         if (Array.isArray(resourcemap.variables)) {
           return resourcemap.variables.map((v, idx) => {
-            const col = new DatasetColumn(v.name || v.label || `Var${idx+1}`);
+            const col = new DatasetColumn(v.name || v.label || `Var${idx + 1}`);
             col.position = v.fileOrder || idx;
-            col.id = v.id || v.name || v.label || `Var${idx+1}`;
+            col.id = v.id || v.name || v.label || `Var${idx + 1}`;
             col.name = v.name || '';
             col.label = v.label || v.name || '';
             col.definition = '';
             col.description = '';
-            
+
             // Check for ollama_remote data in results map
             let ollamaData = resultsMap.get(v.name);
             // Try case-insensitive match if exact match fails
@@ -310,12 +346,12 @@ const app = createApp({
             if (ollamaData && ollamaData.ollama) {
               console.log(`Found ollama_remote for variable ${v.name}`);
               let ollama = ollamaData.ollama;
-              
+
               // Handle case where ollama is a string containing JSON wrapped in markdown code blocks
               if (typeof ollama === 'string') {
                 try {
                   let jsonStr = ollama.trim();
-                  
+
                   // Remove markdown code block markers - handle various formats
                   // Remove opening ```json or ``` (case insensitive, with optional whitespace/newlines)
                   jsonStr = jsonStr.replace(/^```json\s*\n?/i, '');
@@ -323,13 +359,13 @@ const app = createApp({
                   // Remove closing ``` (with optional leading newline/whitespace)
                   jsonStr = jsonStr.replace(/\n?\s*```\s*$/, '');
                   jsonStr = jsonStr.trim();
-                  
+
                   // Try to find JSON object if there's extra text before/after
                   const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
                   if (jsonMatch) {
                     jsonStr = jsonMatch[0];
                   }
-                  
+
                   // Strip JavaScript-style comments (both // and /* */)
                   // Strategy: process line by line to handle // comments more safely
                   const lines = jsonStr.split('\n');
@@ -355,15 +391,15 @@ const app = createApp({
                     return cleaned;
                   });
                   jsonStr = cleanedLines.join('\n');
-                  
+
                   // Remove any remaining /* */ multi-line comments
                   jsonStr = jsonStr.replace(/\/\*[\s\S]*?\*\//g, '');
-                  
+
                   // Clean up any trailing commas before closing brackets/braces (JSON doesn't allow these)
                   jsonStr = jsonStr.replace(/,(\s*[}\]])/g, '$1');
                   // Clean up any double commas that might result
                   jsonStr = jsonStr.replace(/,\s*,/g, ',');
-                  
+
                   // Parse the JSON string
                   ollama = JSON.parse(jsonStr);
                   console.log(`Successfully parsed ollama JSON for variable ${v.name}`);
@@ -382,12 +418,12 @@ const app = createApp({
                   }
                 }
               }
-              
+
               // Extract definition - check multiple possible locations
               let definition = null;
               let units = null;
               let properties = null;
-              
+
               // Case 1: ollama is an object with nested variable name keys (e.g., ollama.HealthZone.definition)
               if (typeof ollama === 'object' && ollama !== null && !Array.isArray(ollama)) {
                 // Check if there's a key matching the variable name
@@ -408,7 +444,7 @@ const app = createApp({
                   }
                 }
               }
-              
+
               // Case 2: ollama.variable is an object with definition
               if (!definition && ollama.variable && typeof ollama.variable === 'object' && ollama.variable.definition) {
                 definition = ollama.variable.definition;
@@ -421,12 +457,12 @@ const app = createApp({
                 units = ollama.units;
                 properties = ollama.properties;
               }
-              
+
               if (definition) {
                 col.definition = definition;
                 col.description = definition;
               }
-              
+
               // Extract units - handle various formats
               if (units) {
                 let unitsStr = '';
@@ -454,7 +490,7 @@ const app = createApp({
                   }
                 }
               }
-              
+
               // Extract properties info
               if (properties) {
                 const props = [];
@@ -478,7 +514,7 @@ const app = createApp({
                 }
               }
             }
-            
+
             // Fallback to variableMetadata if no ollama_remote data found
             if (!col.definition && v.variableMetadata && Array.isArray(v.variableMetadata) && v.variableMetadata.length) {
               const defMeta = v.variableMetadata.find(m => m.definition || m.label === 'definition');
@@ -487,7 +523,7 @@ const app = createApp({
                 if (!col.description) col.description = defMeta.definition;
               }
             }
-            
+
             col.hasIntendedDataType = (v.variableFormatType && v.variableFormatType.toLowerCase().includes('char')) ?
               (RepresentationTypes.find(e => e.id === 'String') || RepresentationTypes[0]) :
               (RepresentationTypes.find(e => e.id === 'Decimal') || RepresentationTypes[0]);
@@ -510,17 +546,26 @@ const app = createApp({
           + '&datasetid=' + encodeURIComponent(params.datasetid)
           + '&datasetversion=' + encodeURIComponent(params.datasetversion)
           + '&locale=' + encodeURIComponent(params.locale);
+      } else if (params.siteUrl) {
+        url = params.siteUrl;
       } else {
         url = 'https://cdif-4-xas.dev.codata.org/cdi?fileid=38&siteUrl=https://dataverse.dev.codata.org&datasetid=doi:10.5072/FK2/4ZSKVU&datasetversion=3.0&locale=en';
       }
       await this.loadJsonLdFromUrl_base(url, params);
     },
     async loadJsonLdFromUrlWithParams(params) {
-      const url = 'https://cdif-4-xas.dev.codata.org/cdi?fileid=' + encodeURIComponent(params.fileid || '')
-        + '&siteUrl=' + encodeURIComponent(params.siteUrl || '')
-        + '&datasetid=' + encodeURIComponent(params.datasetid || '')
-        + '&datasetversion=' + encodeURIComponent(params.datasetversion || '')
-        + '&locale=' + encodeURIComponent(params.locale || '');
+      let url;
+      if (params.fileid && params.siteUrl && params.datasetid && params.datasetversion && params.locale) {
+        url = 'https://cdif-4-xas.dev.codata.org/cdi?fileid=' + encodeURIComponent(params.fileid || '')
+          + '&siteUrl=' + encodeURIComponent(params.siteUrl || '')
+          + '&datasetid=' + encodeURIComponent(params.datasetid || '')
+          + '&datasetversion=' + encodeURIComponent(params.datasetversion || '')
+          + '&locale=' + encodeURIComponent(params.locale || '');
+      } else if (params.siteUrl) {
+        url = params.siteUrl;
+      } else {
+        url = 'https://cdif-4-xas.dev.codata.org/cdi?fileid=38&siteUrl=https://dataverse.dev.codata.org&datasetid=doi:10.5072/FK2/4ZSKVU&datasetversion=3.0&locale=en';
+      }
       await this.loadJsonLdFromUrl_base(url, params);
     },
     async loadJsonLdFromUrl_base(url, params) {
@@ -529,8 +574,39 @@ const app = createApp({
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const jsonLdData = await response.json();
-        
+        const responseData = await response.json();
+
+        // Check if this is a CDIF Variable Inventory (array of objects)
+        if (Array.isArray(responseData)) {
+          const dataset = new Dataset();
+          dataset.fileName = url.split('/').pop() || 'inventory.json';
+          dataset.studyName = 'CDIF Inventory';
+          dataset.columns = responseData.map((item, index) => {
+            const col = new DatasetColumn(item.variable_name || `Var_${index}`);
+            col.position = index;
+            col.label = item.variable_name;
+            col.definition = item.variable_definition || "";
+            col.description = item.value_description || "";
+            if (item.variable_type === "Quantitative") {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "Decimal") || RepresentationTypes[0];
+            } else if (item.variable_type === "Temporal") {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "DateTime") || RepresentationTypes[0];
+            } else {
+              col.hasIntendedDataType = RepresentationTypes.find(e => e.id === "String") || RepresentationTypes[0];
+            }
+            if (item.unit_scale) {
+              col.description += ` [Unit/Scale: ${item.unit_scale}]`;
+            }
+            return col;
+          });
+          this.input.dataset = dataset;
+          this.input.file = { name: dataset.fileName };
+          document.title = `${dataset.fileName} - ${this.appMetadata.name}`;
+          return;
+        }
+
+        const jsonLdData = responseData;
+
         // Helper function to extract value from JSON-LD property
         const extractValue = (property) => {
           if (!property) return null;
@@ -546,7 +622,7 @@ const app = createApp({
           }
           return property || null;
         };
-        
+
         // Helper function to get property from node
         const getProperty = (node, propName) => {
           if (!node || typeof node !== 'object') return null;
@@ -567,43 +643,43 @@ const app = createApp({
           }
           return null;
         };
-        
+
         // Helper function to find node by type
         const findNodeByType = (type, searchArray) => {
           if (!searchArray || !Array.isArray(searchArray)) return null;
           return searchArray.find(node => {
             if (!node['@type']) return false;
             const nodeTypes = Array.isArray(node['@type']) ? node['@type'] : [node['@type']];
-            return nodeTypes.some(t => 
-              t === type || 
+            return nodeTypes.some(t =>
+              t === type ||
               t === `http://schema.org/${type.split(':').pop()}` ||
               (typeof t === 'string' && t.includes('Dataset'))
             );
           });
         };
-        
+
         // Helper function to find dataset node
         const findDatasetNode = () => {
           if (jsonLdData['@graph']) {
-            let node = findNodeByType('schema:Dataset', jsonLdData['@graph']) || 
-                      findNodeByType('http://schema.org/Dataset', jsonLdData['@graph']);
+            let node = findNodeByType('schema:Dataset', jsonLdData['@graph']) ||
+              findNodeByType('http://schema.org/Dataset', jsonLdData['@graph']);
             if (node) return node;
             node = jsonLdData['@graph'].find(n => n['@id'] && typeof n['@id'] === 'string' && n['@id'].includes('doi.org'));
             if (node) return node;
           }
           if (jsonLdData['CDIGenerated'] && Array.isArray(jsonLdData['CDIGenerated'])) {
-            let node = findNodeByType('schema:Dataset', jsonLdData['CDIGenerated']) || 
-                      findNodeByType('http://schema.org/Dataset', jsonLdData['CDIGenerated']);
+            let node = findNodeByType('schema:Dataset', jsonLdData['CDIGenerated']) ||
+              findNodeByType('http://schema.org/Dataset', jsonLdData['CDIGenerated']);
             if (node) return node;
             node = jsonLdData['CDIGenerated'].find(n => n['@id'] && typeof n['@id'] === 'string' && n['@id'].includes('doi.org'));
             if (node) return node;
           }
           return null;
         };
-        
+
         const dataset = new Dataset();
         const datasetNode = findDatasetNode();
-        
+
         if (datasetNode) {
           const findNodeById = (nodeId) => {
             if (!nodeId) return null;
@@ -617,7 +693,7 @@ const app = createApp({
             }
             return null;
           };
-          
+
           // Extract file name from distribution
           const distribution = getProperty(datasetNode, 'distribution');
           if (distribution) {
@@ -642,17 +718,17 @@ const app = createApp({
             const identifier = getProperty(datasetNode, 'identifier');
             dataset.fileName = extractValue(name) || extractValue(identifier) || 'cdi-json-ld.json';
           }
-          
+
           // Extract dataset metadata
           const name = getProperty(datasetNode, 'name');
           dataset.studyName = extractValue(name) || 'CDI Dataset';
           const schemaOrgNameValue = getProperty(datasetNode, 'http://schema.org/name');
           dataset.schemaOrgName = extractValue(schemaOrgNameValue) || extractValue(name) || '';
-          
+
           const description = getProperty(datasetNode, 'description');
           const extractedDescription = extractValue(description);
           dataset.studyDescription = extractedDescription || 'Please describe the content and Method of this study.';
-          
+
           // Extract publisher/study group
           const publisher = getProperty(datasetNode, 'publisher');
           const provider = getProperty(datasetNode, 'provider');
@@ -692,16 +768,16 @@ const app = createApp({
           dataset.studyName = 'CDI Dataset';
           dataset.studyDescription = 'Please describe the content and Method of this study.';
         }
-        
+
         dataset.mimeType = 'application/ld+json';
         dataset.inputType = 'json-ld';
         dataset.data = [[]];
         dataset.lastModified = new Date().toISOString();
-        
+
         // Extract columns from JSON-LD
         dataset.columns = this.extractColumnsFromJsonLd(jsonLdData);
         console.log('Extracted columns from JSON-LD:', dataset.columns ? dataset.columns.length : 0, 'columns');
-        
+
         // Fallback: If no columns found, fetch from resourcemap
         if (!Array.isArray(dataset.columns) || dataset.columns.length === 0) {
           console.warn('No variables found in main JSON-LD, fetching variables from Dataverse resourcemap...');
@@ -715,7 +791,7 @@ const app = createApp({
             dataset.columns = [];
           }
         }
-        
+
         dataset.jsonLdData = jsonLdData;
         dataset.serializedData = JSON.stringify(jsonLdData, null, 2);
         this.input.dataset = dataset;
@@ -758,10 +834,10 @@ const app = createApp({
     })
     const output = computed(() => {
       // If JSON-LD was loaded from URL, use it directly; otherwise convert dataset to CDI JSON-LD
-      const cdiJsonLd = input.dataset.jsonLdData 
+      const cdiJsonLd = input.dataset.jsonLdData
         ? JSON.stringify(input.dataset.jsonLdData, null, 2)
         : toDdiCdiJsonLd(input.dataset)
-      
+
       return {
         filename: input.file?.name?.split('.').slice(0, -1).join('.'),
         markdown: datasetToMarkdown(input.dataset),
@@ -770,14 +846,14 @@ const app = createApp({
           ...input.dataset.data.map(e => e.join(input.dataset.delimiter))
         ].join('\n'),
         json: cdiJsonLd,
-        cdi_data : cdiJsonLd,
-        cdi : (hljs.highlight(cdiJsonLd, { language: "json" }).value),
-        ddic_data : toDdiCXml(input.dataset),
-        ddic : (hljs.highlight(toDdiCXml(input.dataset), { language: "xml" }).value),
-        ddil_data : toDdiLXml(input.dataset),
-        ddil : (hljs.highlight(toDdiLXml(input.dataset), { language: "xml" }).value),
-        ddi40l_data : toDdi40LJson(input.dataset),
-        ddi40l : (hljs.highlight(toDdi40LJson(input.dataset), { language: "json" }).value)
+        cdi_data: cdiJsonLd,
+        cdi: (hljs.highlight(cdiJsonLd, { language: "json" }).value),
+        ddic_data: toDdiCXml(input.dataset),
+        ddic: (hljs.highlight(toDdiCXml(input.dataset), { language: "xml" }).value),
+        ddil_data: toDdiLXml(input.dataset),
+        ddil: (hljs.highlight(toDdiLXml(input.dataset), { language: "xml" }).value),
+        ddi40l_data: toDdi40LJson(input.dataset),
+        ddi40l: (hljs.highlight(toDdi40LJson(input.dataset), { language: "json" }).value)
       }
     })
     // Add this to expose GET params
